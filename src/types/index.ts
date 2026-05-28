@@ -16,4 +16,6 @@ export interface TestCase {
   confidence?: number;
 }
 
-export type Page = "dashboard" | "scope" | "comparison" | "risk" | "history" | "tools";
+export type Page = "dashboard" | "scope" | "comparison" | "risk" | "history" | "tools" | "tracker";
+
+export type ExecStatus = "not-started" | "in-progress" | "passed" | "failed" | "blocked";

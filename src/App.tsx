@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   LayoutDashboard, Target, BarChart2, AlertTriangle, History,
   Wrench, Bell, HelpCircle, Grid3x3, ChevronRight, Menu,
-  CalendarDays, ChevronDown,
+  CalendarDays, ChevronDown, ClipboardList,
 } from "lucide-react";
 import { Page, TestCase } from "./types";
 import { loadTotalScope, loadProposedScope } from "./data/loader";
@@ -12,6 +12,8 @@ import ScopeComparison from "./pages/ScopeComparison";
 import RiskAnalysis from "./pages/RiskAnalysis";
 import ReleaseHistory from "./pages/ReleaseHistory";
 import ExportReports from "./pages/ExportReports";
+import ExecutionTracker from "./pages/ExecutionTracker";
+import SmartSearch from "./components/SmartSearch";
 
 interface NavItem { key: Page; label: string; icon: React.ReactNode; chevron?: boolean }
 
@@ -19,10 +21,11 @@ const NAV_OVERVIEW: NavItem[] = [
   { key: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={18} strokeWidth={1.8} /> },
 ];
 const NAV_ANALYSIS: NavItem[] = [
-  { key: "scope",      label: "Scope Proposal",  icon: <Target        size={18} strokeWidth={1.8} />, chevron: true  },
-  { key: "comparison", label: "Scope Comparison", icon: <BarChart2     size={18} strokeWidth={1.8} /> },
-  { key: "risk",       label: "Risk Analysis",    icon: <AlertTriangle size={18} strokeWidth={1.8} /> },
-  { key: "history",    label: "Release History",  icon: <History       size={18} strokeWidth={1.8} /> },
+  { key: "scope",      label: "Scope Proposal",    icon: <Target        size={18} strokeWidth={1.8} />, chevron: true  },
+  { key: "comparison", label: "Scope Comparison",  icon: <BarChart2     size={18} strokeWidth={1.8} /> },
+  { key: "risk",       label: "Risk Analysis",      icon: <AlertTriangle size={18} strokeWidth={1.8} /> },
+  { key: "history",    label: "Release History",    icon: <History       size={18} strokeWidth={1.8} /> },
+  { key: "tracker",    label: "Execution Tracker",  icon: <ClipboardList size={18} strokeWidth={1.8} /> },
 ];
 
 const RELEASES = ["2508", "2602", "2608", "2702", "2708", "2802"];
@@ -34,6 +37,7 @@ const PAGE_TITLES: Record<Page, string> = {
   risk:       "Risk Analysis",
   history:    "Release History",
   tools:      "Export & Reports",
+  tracker:    "Execution Tracker",
 };
 const PAGE_SUBS: Record<Page, string> = {
   dashboard:  "AI-powered test scope optimization · Release 2508",
@@ -42,6 +46,7 @@ const PAGE_SUBS: Record<Page, string> = {
   risk:       "Feature drift and domain risk · Release 2508",
   history:    "Model performance across releases",
   tools:      "Download test scope data and generate reports",
+  tracker:    "Track execution status for Release 2508 · auto-saved",
 };
 
 const App: React.FC = () => {
@@ -54,12 +59,26 @@ const App: React.FC = () => {
   const [releaseOpen, setReleaseOpen] = useState(false);
   const [unavailableRelease, setUnavailableRelease] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const releaseRef                    = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     Promise.all([loadTotalScope(), loadProposedScope()])
       .then(([t, p]) => { setTotal(t); setProposed(p); setLoading(false); })
       .catch(e => { setError(String(e)); setLoading(false); });
+  }, []);
+
+  // Cmd+K / Ctrl+K global search
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setSearchOpen(o => !o);
+      }
+      if (e.key === "Escape") setSearchOpen(false);
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, []);
 
   // Close dropdown on outside click
@@ -205,6 +224,9 @@ const App: React.FC = () => {
           </div>
 
           <div className="top-header-actions">
+            <button className="cmd-k-hint" onClick={() => setSearchOpen(true)} title="Global search">
+              <span>⌘K</span>
+            </button>
             <button className="header-icon-btn" title="Notifications">
               <Bell size={18} />
               <span className="header-notif-badge">3</span>
@@ -241,10 +263,21 @@ const App: React.FC = () => {
               {page === "risk"       && <RiskAnalysis total={total} proposed={proposed} />}
               {page === "history"    && <ReleaseHistory total={total} proposed={proposed} />}
               {page === "tools"      && <ExportReports total={total} proposed={proposed} />}
+              {page === "tracker"    && <ExecutionTracker proposed={proposed} />}
             </>
           )}
         </main>
       </div>
+
+      {/* ── Smart Search ── */}
+      {searchOpen && !loading && (
+        <SmartSearch
+          total={total}
+          proposed={proposed}
+          onClose={() => setSearchOpen(false)}
+          onNavigate={(p) => { setPage(p); setSearchOpen(false); }}
+        />
+      )}
 
       {/* ── Data Unavailable Modal ── */}
       {unavailableRelease && (

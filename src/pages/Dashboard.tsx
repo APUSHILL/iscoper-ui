@@ -164,7 +164,7 @@ const Dashboard: React.FC<Props> = ({ total, proposed }) => {
         <div className="cmd-strip-divider" />
 
         <div className="cmd-metric">
-          <div className="cmd-metric-val" style={{ color: "#60c4ff" }}>{proposed.length.toLocaleString()}</div>
+          <div className="cmd-metric-val" style={{ color: "#0070f2" }}>{proposed.length.toLocaleString()}</div>
           <div className="cmd-metric-label">AI Proposed</div>
           <div className="cmd-metric-sub">{proposedPct}% of suite</div>
         </div>
@@ -172,7 +172,7 @@ const Dashboard: React.FC<Props> = ({ total, proposed }) => {
         <div className="cmd-strip-divider" />
 
         <div className="cmd-metric">
-          <div className="cmd-metric-val" style={{ color: "#4ade80" }}>{reductionPct}%</div>
+          <div className="cmd-metric-val" style={{ color: "#256f3a" }}>{reductionPct}%</div>
           <div className="cmd-metric-label">Scope Reduction</div>
           <div className="cmd-metric-sub">{skip.toLocaleString()} TCs safe to skip</div>
         </div>
@@ -180,7 +180,7 @@ const Dashboard: React.FC<Props> = ({ total, proposed }) => {
         <div className="cmd-strip-divider" />
 
         <div className="cmd-metric">
-          <div className="cmd-metric-val" style={{ color: recallPct === "100" ? "#4ade80" : "#facc15" }}>{recallPct}%</div>
+          <div className="cmd-metric-val" style={{ color: recallPct === "100" ? "#256f3a" : "#e76500" }}>{recallPct}%</div>
           <div className="cmd-metric-label">Hotfix Recall</div>
           <div className="cmd-metric-sub">{hotfixProp}/{hotfixTotal} defect TCs caught</div>
         </div>
@@ -188,11 +188,11 @@ const Dashboard: React.FC<Props> = ({ total, proposed }) => {
         <div className="cmd-strip-divider" />
 
         <div className="cmd-metric">
-          <div className="cmd-metric-val" style={{ color: "#f87171" }}>{hotfixTotal - hotfixProp}</div>
+          <div className="cmd-metric-val" style={{ color: "#aa0808" }}>{hotfixTotal - hotfixProp}</div>
           <div className="cmd-metric-label">Defects Missed</div>
           <div className="cmd-metric-sub">
             {hotfixTotal - hotfixProp === 0
-              ? <span style={{ color: "#4ade80" }}>✓ perfect recall</span>
+              ? <span style={{ color: "#256f3a" }}>✓ perfect recall</span>
               : "review recommended"}
           </div>
         </div>
